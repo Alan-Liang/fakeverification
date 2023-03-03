@@ -1,8 +1,8 @@
 BASE=https://jhc.sjtu.edu.cn/public/courses/CS2206/
-MATERIALS=Intro BoolExprSem Syntax DenotationalSemantics
-ASSIGNMENTS=0213 0216
+MATERIALS=Intro BoolExprSem Syntax DenotationalSemantics ListAndNat PracticalDenotations
+ASSIGNMENTS=0213 0216 0227
 ASSIGNMENT_PDFS=0220
-ZIPS=SetsClass
+ZIPS=SetsClass compcert_lib
 
 %:
 	wget "${BASE}$@"

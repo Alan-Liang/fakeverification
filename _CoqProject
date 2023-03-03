@@ -1,1 +1,1 @@
--Q . PV -Q ./SetsClass SetsClass
+-Q . PV -Q ./SetsClass SetsClass -R ./compcert compcert.lib
