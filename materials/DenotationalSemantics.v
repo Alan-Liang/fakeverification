@@ -562,7 +562,13 @@ Qed.
 (** 习题：*)
 Example and_exercise :
   forall n m : Z, n + 2*m = 10 -> 2*n + m = 5 -> n = 0 /\ True.
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+(* 请在此处填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  split.
+  + lia.
+  + exact I.
+Qed.
 
 (** 如果当前一条前提假设具有『某命题并且某命题』的形式，我们可以在Coq中使用
     _[destruct]_指令将其拆分成为两个前提。 *)
@@ -601,7 +607,17 @@ Qed.
 (** 习题：*)
 Theorem and_assoc : forall P Q R : Prop,
   P /\ (Q /\ R) -> (P /\ Q) /\ R.
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+(* 请在此处填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  destruct H.
+  destruct H0.
+  split.
+  + split.
+    - apply H.
+    - apply H0.
+  + apply H1.
+Qed.
 
 (** ** 关于『或』的证明 *)
 
@@ -663,7 +679,15 @@ Qed.
 (** 习题：*)
 Theorem or_commut : forall P Q : Prop,
   P \/ Q  -> Q \/ P.
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+(* 请在此处填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  destruct H as [HP | HQ].
+  + right.
+    apply HP.
+  + left.
+    apply HQ.
+Qed.
 
 (** ** 关于『如果...那么...』的证明 *)
 
@@ -767,12 +791,25 @@ Qed.
 (** 习题：*)
 Theorem not_False :
   ~ False.
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+(* 请在此处填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  pose proof classic False.
+  destruct H.
+  + contradiction.
+  + apply H.
+Qed.
 
 (** 习题：*)
 Theorem double_neg_intro : forall P : Prop,
   P -> ~ ~ P.
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+(* 请在此处填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  pose proof classic (~ P).
+  destruct H0.
+  + contradiction.
+  + apply H0.
+Qed.
 
 (** ** 关于『当且仅当』的证明 *)
 
@@ -853,12 +890,31 @@ Qed.
 (** 习题：*)
 Theorem dist_exists_and : forall (X: Type) (P Q: X -> Prop),
   (exists x, P x /\ Q x) -> (exists x, P x) /\ (exists x, Q x).
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+(* 请在此处填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  destruct H as [x [HP HQ]].
+  split.
+  + exists x.
+    apply HP.
+  + exists x.
+    apply HQ.
+Qed.
 
 (** 习题：*)
 Theorem exists_exists : forall (X Y: Type) (P: X -> Y -> Prop),
   (exists x y, P x y) <-> (exists y x, P x y).
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+(* 请在此处填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  split; intros.
+  + destruct H as [x [y ?]].
+    exists y, x.
+    exact H.
+  + destruct H as [y [x ?]].
+    exists x, y.
+    exact H.
+Qed.
 
 (** ** 关于『任意』的证明 *)
 
@@ -1016,6 +1072,9 @@ Fixpoint eval_com (c: com): state -> state -> Prop :=
   | CWhile e c1 =>
       while_sem (eval_expr_bool e) (eval_com c1)
   end.
+
+
+
 
 
 End DntSem_SimpleWhile4.

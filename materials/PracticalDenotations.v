@@ -460,10 +460,17 @@ Definition and_sem_nrm
      exists i2,
        D2 s i2 /\ NonSC_compute_nrm i2 i).
 
+Definition and_sem_err
+             (D1: state -> int64 -> Prop)
+             (D2: state -> Prop)
+             (s: state): Prop :=
+  exists i1,
+    D1 s i1 /\ NonSC_and i1 /\ D2 s.
+
 Definition and_sem (D1 D2: EDenote): EDenote :=
   {|
     nrm := and_sem_nrm D1.(nrm) D2.(nrm);
-    err := D1.(err) ∪ D2.(err);
+    err := D1.(err) ∪ and_sem_err D1.(nrm) D2.(err);
   |}.
 
 Definition or_sem_nrm
@@ -477,10 +484,17 @@ Definition or_sem_nrm
      exists i2,
        D2 s i2 /\ NonSC_compute_nrm i2 i).
 
+Definition or_sem_err
+             (D1: state -> int64 -> Prop)
+             (D2: state -> Prop)
+             (s: state): Prop :=
+  exists i1,
+    D1 s i1 /\ NonSC_or i1 /\ D2 s.
+
 Definition or_sem (D1 D2: EDenote): EDenote :=
   {|
     nrm := or_sem_nrm D1.(nrm) D2.(nrm);
-    err := D1.(err) ∪ D2.(err);
+    err := D1.(err) ∪ or_sem_err D1.(nrm) D2.(err);
   |}.
 
 (** 最终我们可以将所有一元运算与二元运算的语义汇总起来：*)
@@ -646,9 +660,9 @@ Definition if_sem
            (test_false D0 ∘ D2.(nrm));
     err := D0.(err) ∪
            (test_true D0 ∘ D1.(err)) ∪
-           (test_true D0 ∘ D2.(err));
+           (test_false D0 ∘ D2.(err));
     inf := (test_true D0 ∘ D1.(inf)) ∪
-           (test_true D0 ∘ D2.(inf))
+           (test_false D0 ∘ D2.(inf))
   |}.
 
 (** 在while语句的语义定义中，程序正常运行终止的情况与程序运行出错终止的情况可以
@@ -721,5 +735,4 @@ Fixpoint eval_com (c: com): CDenote :=
   end.
 
 End DntSem_While.
-
 
