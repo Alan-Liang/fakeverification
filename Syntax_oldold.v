@@ -6,7 +6,7 @@ Local Open Scope Z.
 
 (** * 一个极简的指令式程序语言 *)
 
-Module Lang_SimpleWhile.
+Module While_SimpleWhile.
 
 (** 以下考虑一种极简的程序语言。它的程序表达式分为整数类型表达式与布尔类型表达
     式，其中整数类型表达式只包含加减乘运算与变量、常数。布尔表达式中只包含整数类
@@ -61,19 +61,18 @@ Inductive expr_bool: Type :=
   | ENot (e: expr_bool): expr_bool.
 
 Inductive com : Type :=
-  | CSkip: com
-  | CAsgn (x: var_name) (e: expr_int): com
+  | CAss (x: var_name) (e: expr_int): com
   | CSeq (c1 c2: com): com
   | CIf (e: expr_bool) (c1 c2: com): com
   | CWhile (e: expr_bool) (c: com): com.
 
 
 
-End Lang_SimpleWhile.
+End While_SimpleWhile.
 
 (** * While语言 *)
 
-Module Lang_While.
+Module While_While.
 
 
 (** 在许多以C语言为代表的常用程序语言中，往往不区分整数类型表达式与布尔类型表达
@@ -97,23 +96,27 @@ Inductive unop : Type :=
 (** 下面是表达式的抽象语法树。*)
 
 Inductive expr : Type :=
-  | EConst (n: Z): expr
-  | EVar (x: var_name): expr
-  | EBinop (op: binop) (e1 e2: expr): expr
-  | EUnop (op: unop) (e: expr): expr.
+  | ENum (n: Z)
+  | EVar (x: var_name)
+  | EBinop (op: binop) (e1 e2: expr)
+  | EUnop (op: unop) (e: expr)
+  | EDeref (e: expr).
 
 (** 最后程序语句的定义是类似的。*)
 
 Inductive com : Type :=
-  | CSkip: com
-  | CAsgn (x: var_name) (e: expr): com
+  | CAss (x: var_name) (e: expr): com
   | CSeq (c1 c2: com): com
   | CIf (e: expr) (c1 c2: com): com
   | CWhile (e: expr) (c: com): com.
 
-End Lang_While.
+
+
+End While_While.
 
 (** * 用Coq归纳类型定义二叉树 *)
+
+
 
 Inductive tree: Type :=
 | Leaf: tree
@@ -270,6 +273,7 @@ Proof.
         令也会先根据定义化简，再试图推出矛盾。*)
 Qed.
 
+
 (** * 结构归纳法 *)
 
 
@@ -353,20 +357,18 @@ Proof.
         使用前提中关于整数线性运算的假设。*)
 Qed.
 
+
 (** 习题：*)
 Lemma reverse_involutive: forall t,
   tree_reverse (tree_reverse t) = t.
-(* 请在此处填入你的证明，以_[Qed]_结束。 *)
 Proof.
   intros.
-  induction t.
-  + simpl.
-    reflexivity.
-  + simpl.
-    rewrite IHt1.
-    rewrite IHt2.
+  induction t; simpl.
+  - reflexivity.
+  - rewrite IHt1, IHt2.
     reflexivity.
 Qed.
+
 
 
 
@@ -392,7 +394,7 @@ Proof.
       (** 如果_[t2]_是非空树，那么前提_[H]_就能导出矛盾。如上面指令展示的那样，
           _[simpl]_指令也可以对前提中的递归定义化简。当然，在这个证明中，由于之
           后的_[discriminate]_指令也会完成自动化简，这条_[simpl]_指令其实是可以
-          省略的。*)
+          沈略的。*)
   +
 Abort.
 
@@ -420,73 +422,50 @@ Proof.
       reflexivity.
 Qed.
 
-(** 当然，上面这条引理其实可以不用归纳法证明。下面的证明中使用了前面证明的结论：
-    _[reverse_involutive]_。*)
+Lemma tree_reverse_inj1: forall t1 t2,
+  tree_reverse t1 = tree_reverse t2 ->
+  t1 = t2.
+Proof.
+  intro.
+  induction t1; simpl; intros.
+  - symmetry in H.
+    rewrite (reverse_result_Leaf _ H).
+    reflexivity.
+  - destruct t2.
+    + discriminate.
+    + simpl in H.
+      injection H as ? ? ?.
+      rewrite (IHt1_1 _ H1).
+      rewrite (IHt1_2 _ H).
+      rewrite H0.
+      reflexivity.
+Qed.
 
-Lemma tree_reverse_inj_again: forall t1 t2,
+Lemma tree_reverse_inj2 (t1 t2: tree):
+  tree_reverse t1 = tree_reverse t2 -> t1 = t2.
+Proof.
+  revert t2.
+  induction t1; simpl; intros.
+  - symmetry in H.
+    rewrite (reverse_result_Leaf _ H).
+    reflexivity.
+  - destruct t2.
+    + discriminate.
+    + simpl in H.
+      injection H as ? ? ?.
+      rewrite (IHt1_1 _ H1).
+      rewrite (IHt1_2 _ H).
+      rewrite H0.
+      reflexivity.
+Qed.
+
+Lemma tree_reverse_inj3: forall t1 t2,
   tree_reverse t1 = tree_reverse t2 ->
   t1 = t2.
 Proof.
   intros.
-  rewrite <- (reverse_involutive t1), <- (reverse_involutive t2).
+  rewrite <- (reverse_involutive t1).
+  rewrite <- (reverse_involutive t2).
   rewrite H.
   reflexivity.
 Qed.
-
-
-(** * 更多的程序语言：WhileD *)
-
-Module Lang_WhileD.
-Import Lang_While.
-
-(** 下面在程序语言中增加取地址_[EAddrOf]_与取地址上的值_[EDeref]_两类操作。*)
-
-Inductive expr : Type :=
-  | EConst (n: Z): expr
-  | EVar (x: var_name): expr
-  | EBinop (op: binop) (e1 e2: expr): expr
-  | EUnop (op: unop) (e: expr): expr
-  | EDeref (e: expr): expr
-  | EAddrOf (e: expr): expr.
-
-(** 相应的，赋值语句也可以分为两种情况。*)
-
-Inductive com : Type :=
-  | CSkip: com
-  | CAsgnVar (x: var_name) (e: expr): com
-  | CAsgnDeref (e1 e2: expr): com
-  | CSeq (c1 c2: com): com
-  | CIf (e: expr) (c1 c2: com): com
-  | CWhile (e: expr) (c: com): com.
-
-End Lang_WhileD.
-
-(** * 更多的程序语言：WhileDC *)
-
-Module Lang_WhileDC.
-Import Lang_While.
-
-(** 下面在程序语句中增加控制流语句continue与break，并增加多种循环语句。*)
-
-Inductive expr : Type :=
-  | EConst (n: Z): expr
-  | EVar (x: var_name): expr
-  | EBinop (op: binop) (e1 e2: expr): expr
-  | EUnop (op: unop) (e: expr): expr
-  | EDeref (e: expr): expr
-  | EAddrOf (e: expr): expr.
-
-Inductive com : Type :=
-  | CSkip: com
-  | CAsgnVar (x: var_name) (e: expr): com
-  | CAsgnDeref (e1 e2: expr): com
-  | CSeq (c1 c2: com): com
-  | CIf (e: expr) (c1 c2: com): com
-  | CWhile (e: expr) (c: com): com
-  | CFor (c1: com) (e: expr) (c2: com) (c3: com): com
-  | CDoWhile (c: com) (e: expr): com
-  | CContinue: com
-  | CBreak: com.
-
-End Lang_WhileDC.
-

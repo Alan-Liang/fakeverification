@@ -58,7 +58,6 @@ Lemma inf_loop_nrm: forall e c n,
   iter_nrm_lt_n (eval_expr e) (eval_com c) n == ∅.
 Proof.
   intros.
-  revert n.
   induction n; try reflexivity.
   simpl.
   rewrite H, H0, H1, IHn.

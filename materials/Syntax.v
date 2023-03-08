@@ -454,7 +454,7 @@ Inductive expr : Type :=
 Inductive com : Type :=
   | CSkip: com
   | CAsgnVar (x: var_name) (e: expr): com
-  | CAsgnDeref (x: var_name) (e: expr): com
+  | CAsgnDeref (e1 e2: expr): com
   | CSeq (c1 c2: com): com
   | CIf (e: expr) (c1 c2: com): com
   | CWhile (e: expr) (c: com): com.
@@ -479,7 +479,7 @@ Inductive expr : Type :=
 Inductive com : Type :=
   | CSkip: com
   | CAsgnVar (x: var_name) (e: expr): com
-  | CAsgnDeref (x: var_name) (e: expr): com
+  | CAsgnDeref (e1 e2: expr): com
   | CSeq (c1 c2: com): com
   | CIf (e: expr) (c1 c2: com): com
   | CWhile (e: expr) (c: com): com

@@ -1,5 +1,5 @@
 BASE=https://jhc.sjtu.edu.cn/public/courses/CS2206/
-MATERIALS=Intro BoolExprSem Syntax DenotationalSemantics ListAndNat PracticalDenotations
+MATERIALS=Intro BoolExprSem Syntax DenotationalSemantics ListAndNat PracticalDenotations EquivAndRefine
 ASSIGNMENTS=0213 0216 0227 0302
 ASSIGNMENT_PDFS=0220
 ZIPS=SetsClass compcert_lib
