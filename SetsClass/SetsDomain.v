@@ -71,35 +71,35 @@ Definition lift_Taux {A B} {_SETS: SETS B}: Type -> Type :=
   fun T => A -> Taux T.
 
 Definition lift_Qaux {A B} {_SETS: SETS B}:
-  forall T0, (T0 -> Prop) -> A -> Taux T0 := 
+  forall T0, (T0 -> Prop) -> A -> Taux T0 :=
   fun T0 X _ => Qaux T0 X.
 
 Definition lift_Paux {A B} {_SETS: SETS B}:
-  forall T0, (T0 -> (A -> B)) -> A -> Taux T0 := 
+  forall T0, (T0 -> (A -> B)) -> A -> Taux T0 :=
   fun T0 inj a => Paux T0 (fun t => inj t a).
-  
+
 Definition lift_conj_aux {A B} {_SETS: SETS B}:
-  forall T0, (A -> Taux T0) -> (A -> Taux T0) -> (A -> Taux T0) := 
+  forall T0, (A -> Taux T0) -> (A -> Taux T0) -> (A -> Taux T0) :=
   fun T0 x y a => conj_aux T0 (x a) (y a).
 
 Definition lift_imply_aux {A B} {_SETS: SETS B}:
-  forall T0, (A -> Taux T0) -> (A -> Taux T0) -> (A -> Taux T0) := 
+  forall T0, (A -> Taux T0) -> (A -> Taux T0) -> (A -> Taux T0) :=
   fun T0 x y a => imply_aux T0 (x a) (y a).
 
 Definition lift_forall_aux {A B} {_SETS: SETS B}:
-  forall T0, (A -> Taux T0) -> (A -> B) := 
+  forall T0, (A -> Taux T0) -> (A -> B) :=
   fun T0 x a => forall_aux T0 (x a).
 
 Definition lift_exists_aux {A B} {_SETS: SETS B}:
-  forall T0, (A -> Taux T0) -> (A -> B) := 
+  forall T0, (A -> Taux T0) -> (A -> B) :=
   fun T0 x a => exists_aux T0 (x a).
 
 Definition lift_derives_aux {A B} {_SETS: SETS B}:
-  forall T0, (A -> Taux T0) -> (A -> Taux T0) -> T0 -> Prop := 
+  forall T0, (A -> Taux T0) -> (A -> Taux T0) -> T0 -> Prop :=
   fun T0 x y t0 => forall a, derives_aux T0 (x a) (y a) t0.
 
 Definition lift_inj_aux {A B} {_SETS: SETS B}:
-  forall T0, (A -> B) -> (A -> Taux T0) := 
+  forall T0, (A -> B) -> (A -> Taux T0) :=
   fun T0 x a => inj_aux T0 (x a).
 
 Definition test1 {A B} {_SETS: SETS B}: (A -> Prop) -> (A -> B) :=
@@ -111,7 +111,7 @@ Definition lift1 {A B} {_SETS: SETS B}: B -> (A -> B) :=
 Definition filter1 {A B} {_SETS: SETS B}: (A -> Prop) -> (A -> B) -> (A -> B) :=
   fun P x => lift_intersect (test1 P) x.
 
-Definition projB {A B} (s: (A * B) -> Prop): B -> Prop:= 
+Definition projB {A B} (s: (A * B) -> Prop): B -> Prop:=
   fun b => exists a, s (a,b).
 
 Definition singleton {A: Type} (a: A): A -> Prop := eq a.
@@ -691,7 +691,7 @@ Proof. intros. apply Sets_included_indexed_union. Qed.
 
 Lemma Sets_omega_union_included: forall {T} {_SETS: Sets.SETS T} {_SETS_Properties: SETS_Properties T} xs y, (forall n, Sets.included (xs n) y) -> Sets.included (Sets.omega_union xs) y.
 Proof. intros. apply Sets_indexed_union_included; auto. Qed.
-  
+
 Lemma Sets_omega_intersect_included: forall {T} {_SETS: Sets.SETS T} {_SETS_Properties: SETS_Properties T} xs n, Sets.included (Sets.omega_intersect xs) (xs n).
 Proof. intros. apply Sets_indexed_intersect_included. Qed.
 
@@ -1495,5 +1495,5 @@ Goal (fun x: nat => x + 1) = (fun x: nat => x + 1).
   match goal with
   | |- context [_ + _] => idtac
   end.
-  
+
 *)
