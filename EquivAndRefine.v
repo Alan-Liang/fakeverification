@@ -380,8 +380,6 @@ Proof.
       apply H1.(err_erefine).
 Qed.
 
-Print Reflexive.
-
 (** 程序语句间的语义等价关系也是等价关系，程序语句间的精化关系也具有自反性与传递
     性。*)
 
@@ -497,8 +495,8 @@ Proof.
   unfold arith_sem1_nrm.
   apply ex_iff_morphism; intros i1.
   apply ex_iff_morphism; intros i2.
-  apply and_iff_morphism; [apply H.(nrm_eequiv) |].
-  apply and_iff_morphism; [apply H0.(nrm_eequiv) |].
+  apply and_iff_morphism; try apply H.(nrm_eequiv).
+  apply and_iff_morphism; try apply H0.(nrm_eequiv).
   reflexivity.
 Qed.
 
