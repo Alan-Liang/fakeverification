@@ -4,5 +4,7 @@
 *.vok
 *.vos
 *.cache
+\#*\#
+*.crashcoqide
 
 .vscode

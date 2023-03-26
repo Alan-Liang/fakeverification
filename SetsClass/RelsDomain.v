@@ -255,7 +255,7 @@ Class RELS_Assoc
         {_REL_1_23: Rels.RELS X1 X23 X123}
         {_SETS: Sets.SETS X123}: Prop :=
 {
-  Rels_concat_assoc: 
+  Rels_concat_assoc:
     forall (x: X1) (y: X2) (z: X3),
       Sets.equiv
         (Rels.concat (Rels.concat x y) z)
@@ -348,7 +348,7 @@ Proof.
   + intros; simpl.
     unfold Sets.test1, Sets.lift1, lift_SETS; simpl.
     unfold Sets.intersect at 1 4; simpl.
-    unfold Sets.lift_intersect. 
+    unfold Sets.lift_intersect.
     rewrite <- !Sets_intersect_assoc.
     rewrite (Sets_intersect_comm (Sets.prop_inj _)).
     reflexivity.
@@ -417,7 +417,7 @@ Proof.
     sets_unfold.
     intros i; simpl.
     unfold Sets.lift_indexed_union.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros i2.
       apply Sets_indexed_union_included; intros i1.
       apply Sets_prop_inj_included; intros.
@@ -446,7 +446,7 @@ Proof.
     simpl.
     sets_unfold; intros i; simpl.
     unfold Sets.lift_indexed_union.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros i2.
       apply Sets_indexed_union_included; intros i1.
       apply Sets_prop_inj_included; intros.
@@ -471,7 +471,7 @@ Proof.
     simpl.
     sets_unfold; intros i; simpl.
     unfold Sets.lift_indexed_union.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros i2.
       apply Sets_indexed_union_included; intros i1.
       apply Sets_prop_inj_included; intros.
@@ -496,7 +496,7 @@ Proof.
     simpl.
     sets_unfold; intros i; simpl.
     unfold Sets.lift_indexed_union.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros i2.
       apply Sets_indexed_union_included; intros i1.
       apply Sets_prop_inj_included; intros.
@@ -522,7 +522,7 @@ Proof.
     simpl.
     sets_unfold; intros i; simpl.
     unfold Sets.lift_indexed_union.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros i2.
       apply Sets_indexed_union_included; intros i1.
       apply Sets_prop_inj_included; intros.
@@ -569,7 +569,7 @@ Proof.
   + intros; simpl.
     sets_unfold.
     intros b.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros a.
       rewrite Rels_concat_union_distr_r_aux.
       apply Sets_union_mono.
@@ -587,7 +587,7 @@ Proof.
   + intros; simpl.
     sets_unfold.
     intros b.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros a.
       rewrite Rels_concat_union_distr_l_aux.
       apply Sets_union_mono.
@@ -606,7 +606,7 @@ Proof.
     sets_unfold.
     intros b; simpl.
     unfold Sets.lift_indexed_union.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros a.
       rewrite Rels_concat_indexed_union_distr_r_aux.
       apply Sets_indexed_union_mono; intros i.
@@ -621,7 +621,7 @@ Proof.
     sets_unfold.
     intros b; simpl.
     unfold Sets.lift_indexed_union.
-    apply Sets_equiv_Sets_included; split.     
+    apply Sets_equiv_Sets_included; split.
     - apply Sets_indexed_union_included; intros a.
       rewrite Rels_concat_indexed_union_distr_l_aux.
       apply Sets_indexed_union_mono; intros i.
@@ -993,7 +993,7 @@ Ltac ACC_simplify T :=
     end;
     let op := eval cbv delta [Rels.nil] in @Rels.nil in
     let T' := eval cbv beta zeta iota in (op I _ACC') in
-    change T with T'
+    constr:(T')
   | @Rels.app ?I1 ?I2 ?I ?_ACC =>
     let _ACC' := eval hnf in _ACC in
     match _ACC' with
@@ -1001,7 +1001,7 @@ Ltac ACC_simplify T :=
     end;
     let op := eval cbv delta [Rels.app] in @Rels.app in
     let T' := eval cbv beta zeta iota in (op I1 I2 I _ACC') in
-    change T with T'
+    constr:(T')
   end.
 
 Ltac RELS_unfold1 RELS :=
@@ -1030,77 +1030,94 @@ Ltac RELS_unfold1 RELS :=
   end.
 
 Ltac RELS_simplify T :=
-  first
-    [ match T with
-      | @Rels.concat ?R0 ?S0 ?T0 ?RELS =>
-        match RELS with
-        | Derived_RELS _ _ _ _ _ => idtac
-        end;
-        let op1 := eval cbv delta [Rels.concat] in (@Rels.concat) in
-        let RELS1 := RELS_unfold1 RELS in
-        let T1 := eval cbv beta zeta iota in (op1 R0 S0 T0 RELS1) in
-        change T with T1;
-        try RELS_simplify T1
-      | @Rels.concat_aux ?A ?R0 ?S0 ?T0 ?RELS =>
-        match RELS with
-        | lift_PRE_RELS _ _ _ _ _ _ _ => idtac
-        | Prop_PRE_RELS _ _ => idtac
-        end;
-        let op1 := eval cbv delta [Rels.concat_aux] in (@Rels.concat_aux) in
-        let RELS1 := RELS_unfold1 RELS in
-        let T1 := eval cbv beta zeta iota in (op1 A R0 S0 T0 RELS1) in
-        change T with T1;
-        try RELS_simplify T1
-      | @Rels.id ?R0 ?RELS =>
-        match RELS with
-        | Derived_RELS_ID _ _ => idtac
-        end;
-        let op1 := eval cbv delta [Rels.id] in (@Rels.id) in
-        let RELS1 := RELS_unfold1 RELS in
-        let T1 := eval cbv beta zeta iota in (op1 R0 RELS1) in
-        change T with T1;
-        try RELS_simplify T1
-      | @Rels.test ?S0 ?R0 ?RELS =>
-        match RELS with
-        | Derived_RELS_TEST _ _ => idtac
-        end;
-        let op1 := eval cbv delta [Rels.test] in (@Rels.test) in
-        let RELS1 := RELS_unfold1 RELS in
-        let T1 := eval cbv beta zeta iota in (op1 S0 R0 RELS1) in
-        change T with T1;
-        try RELS_simplify T1
-      | @Rels.id_aux ?A ?R0 ?RELS =>
-        match RELS with
-        | lift_PRE_RELS_ID _ _ _ => idtac
-        | Prop_PRE_RELS_ID _ => idtac
-        end;
-        let op1 := eval cbv delta [Rels.id_aux] in (@Rels.id_aux) in
-        let RELS1 := RELS_unfold1 RELS in
-        let T1 := eval cbv beta zeta iota in (op1 A R0 RELS1) in
-        change T with T1;
-        try RELS_simplify T1
-      end
-    ].
+  match T with
+    | @Rels.concat ?R0 ?S0 ?T0 ?RELS =>
+      let op1 := eval cbv delta [Rels.concat] in (@Rels.concat) in
+      let RELS1 := RELS_unfold1 RELS in
+      let T1 := eval cbv beta zeta iota in (op1 R0 S0 T0 RELS1) in
+      constr:(T1)
+    | @Rels.concat_aux ?A ?R0 ?S0 ?T0 ?RELS =>
+      let op1 := eval cbv delta [Rels.concat_aux] in (@Rels.concat_aux) in
+      let RELS1 := RELS_unfold1 RELS in
+      let T1 := eval cbv beta zeta iota in (op1 A R0 S0 T0 RELS1) in
+      constr:(T1)
+    | @Rels.id ?R0 ?RELS =>
+      let op1 := eval cbv delta [Rels.id] in (@Rels.id) in
+      let RELS1 := RELS_unfold1 RELS in
+      let T1 := eval cbv beta zeta iota in (op1 R0 RELS1) in
+      constr:(T1)
+    | @Rels.test ?S0 ?R0 ?RELS =>
+      let op1 := eval cbv delta [Rels.test] in (@Rels.test) in
+      let RELS1 := RELS_unfold1 RELS in
+      let T1 := eval cbv beta zeta iota in (op1 S0 R0 RELS1) in
+      constr:(T1)
+    | @Rels.id_aux ?A ?R0 ?RELS =>
+      let op1 := eval cbv delta [Rels.id_aux] in (@Rels.id_aux) in
+      let RELS1 := RELS_unfold1 RELS in
+      let T1 := eval cbv beta zeta iota in (op1 A R0 RELS1) in
+      constr:(T1)
+    | _ => constr:(T)
+    end.
 
-Ltac unfold_RELS_tac :=
-  repeat
-  match goal with
-  | |- context [@Rels.concat ?R0 ?S0 ?T0 ?RELS] =>
-         RELS_simplify (@Rels.concat R0 S0 T0 RELS)
-  | |- context [@Rels.concat_aux ?A ?R0 ?S0 ?T0 ?RELS] =>
-         RELS_simplify (@Rels.concat_aux A R0 S0 T0 RELS)
-  | |- context [@Rels.id ?R0 ?RELS] =>
-         RELS_simplify (@Rels.id R0 RELS)
-  | |- context [@Rels.test ?S0 ?R0 ?RELS] =>
-         RELS_simplify (@Rels.test S0 R0 RELS)
-  | |- context [@Rels.id_aux ?A ?R0 ?RELS] =>
-         RELS_simplify (@Rels.id_aux A R0 RELS)
-  | |- context [@Rels.nil ?I ?ACC] =>
-         ACC_simplify (@Rels.nil I ACC)
-  | |- context [@Rels.app ?I1 ?I2 ?I ?ACC] =>
-         ACC_simplify (@Rels.app I1 I2 I ACC)
-  | |- _ => unfold_SETS_in_goal_tac
+Ltac unfold_RELS_rec T :=
+  match T with
+  | context G [@Rels.concat ?R0 ?S0 ?T0 ?RELS] =>
+         let S := RELS_simplify (@Rels.concat R0 S0 T0 RELS) in
+         let T1 := context G [S] in
+         let T2 := unfold_RELS_rec T1 in
+         constr:(T2)
+  | context G [@Rels.concat_aux ?A ?R0 ?S0 ?T0 ?RELS] =>
+         let S := RELS_simplify (@Rels.concat_aux A R0 S0 T0 RELS) in
+         let T1 := context G [S] in
+         let T2 := unfold_RELS_rec T1 in
+         constr:(T2)
+  | context G [@Rels.id ?R0 ?RELS] =>
+         let S := RELS_simplify (@Rels.id R0 RELS) in
+         let T1 := context G [S] in
+         let T2 := unfold_RELS_rec T1 in
+         constr:(T2)
+  | context G [@Rels.test ?S0 ?R0 ?RELS] =>
+         let S := RELS_simplify (@Rels.test S0 R0 RELS) in
+         let T1 := context G [S] in
+         let T2 := unfold_RELS_rec T1 in
+         constr:(T2)
+  | context G [@Rels.id_aux ?A ?R0 ?RELS] =>
+         let S := RELS_simplify (@Rels.id_aux A R0 RELS) in
+         let T1 := context G [S] in
+         let T2 := unfold_RELS_rec T1 in
+         constr:(T2)
+  | context G [@Rels.nil ?I ?ACC] =>
+         let S := ACC_simplify (@Rels.nil I ACC) in
+         let T1 := context G [S] in
+         let T2 := unfold_RELS_rec T1 in
+         constr:(T2)
+  | context G [@Rels.app ?I1 ?I2 ?I ?ACC] =>
+         let S := ACC_simplify (@Rels.app I1 I2 I ACC) in
+         let T1 := context G [S] in
+         let T2 := unfold_RELS_rec T1 in
+         constr:(T2)
+  | _ => constr:(T)
   end.
+
+Ltac unfold_RELS_in_goal_tac :=
+  repeat match goal with
+  | |- ?T =>
+    let T1 := unfold_RELS_rec T in
+    change T with T1;
+    unfold_SETS_in_goal_tac;
+    cbv beta iota
+  end.
+Ltac unfold_RELS_in_hypo_tac H :=
+  repeat match type of H with
+  | ?T => let T1 :=
+    unfold_RELS_rec T in
+    change T with T1 in H;
+    unfold_SETS_in_hypo_tac H;
+    cbv beta iota in H
+  end.
+
+Tactic Notation "unfold_RELS_tac" := unfold_RELS_in_goal_tac.
+Tactic Notation "unfold_RELS_tac" "in" constr(H) := unfold_RELS_in_hypo_tac H.
 
 Fixpoint nsteps
            {X: Type}
@@ -1183,7 +1200,7 @@ Proof.
 Qed.
 
 Lemma nsteps_rt:
-  forall 
+  forall
     {X: Type}
     {_RELS: Rels.RELS X X X}
     {_RELS_Id: Rels.RELS_ID X}
@@ -1194,7 +1211,7 @@ Lemma nsteps_rt:
 Proof. intros. apply Sets_included_omega_union. Qed.
 
 Lemma nsteps'_rt:
-  forall 
+  forall
     {X: Type}
     {_RELS: Rels.RELS X X X}
     {_RELS_Id: Rels.RELS_ID X}
@@ -1211,7 +1228,7 @@ Proof.
   rewrite <- nsteps_nsteps'.
   apply Sets_included_omega_union.
 Qed.
-  
+
 Lemma rt_trans:
   forall
     {X: Type}
@@ -1602,7 +1619,7 @@ Ltac intros_and_subst P :=
                       intro P;
                       clear x H;
                       intros_and_subst P
-  end.           
+  end.
 
 Ltac injection_and_subst H :=
   match goal with
@@ -1836,7 +1853,7 @@ Ltac proof_induction H :=
   let P := type of H in
   revert_dependent_component P H;
   let R' := get_head P in
-  let n := count_args P in  
+  let n := count_args P in
   revert_args_until_head P R' H;
   revert_EQ_until_head P R' H;
   let GP := fresh "G" in
