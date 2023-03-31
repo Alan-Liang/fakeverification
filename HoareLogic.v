@@ -555,16 +555,13 @@ Lemma hoare_seq_inv: forall P R c1 c2,
 Proof.
   intros.
   remember ( {{P}} c1; c2 {{R}} ) as ht eqn:EQ.
-  revert P R EQ; induction H; intros.
-  + discriminate EQ.
+  revert P R EQ.
+  induction H; intros; try discriminate EQ.
   + clear IHprovable1 IHprovable2.
     injection EQ as ? ? ? ?.
     subst P0 c0 c3 R0.
     exists Q.
     tauto.
-  + discriminate EQ.
-  + discriminate EQ.
-  + discriminate EQ.
   + injection EQ as ? ? ?.
     subst P0 c Q.
     rename Q' into R'.
@@ -631,13 +628,51 @@ Lemma hoare_if_inv: forall P Q e c1 c2,
   provable {{ P }} if (e) then { c1 } else { c2 } {{ Q }} ->
   provable {{ P && [[ e ]] }} c1 {{ Q }} /\
   provable {{ P && [[ ! e ]] }} c2 {{ Q }}.
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  remember {{P}} if e then { c1 } else { c2 } {{Q}}.
+  revert P Q Heqh.
+  induction H;
+  intros;
+  try discriminate;
+  injection Heqh;
+  intros.
+  - subst Q0 c3 c0 e0 P0.
+    tauto.
+  - subst Q0 c P0.
+    specialize (IHprovable _ _ eq_refl).
+    destruct IHprovable.
+    split.
+    + eapply hoare_conseq.
+      * apply H2.
+      * unfold derives, andp.
+        intros.
+        unfold derives in H0.
+        specialize (H0 s).
+        tauto.
+      * tauto.
+    + eapply hoare_conseq.
+      * apply H3.
+      * unfold derives, andp.
+        intros.
+        unfold derives in H0.
+        specialize (H0 s).
+        tauto.
+      * tauto.
+Qed. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
 
 (** 习题：*)
 Lemma hoare_if_seq1: forall P Q e c1 c2 c3,
   provable {{ P }} if (e) then { c1 } else { c2 }; c3 {{ Q }} ->
   provable {{ P }} if (e) then { c1; c3 } else { c2; c3 } {{ Q }}.
-Admitted. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+Proof.
+  intros.
+  apply hoare_seq_inv in H.
+  destruct H as [R], H.
+  apply hoare_if_inv in H.
+  destruct H.
+  apply hoare_if; apply (hoare_seq _ R); tauto.
+Qed. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
 
 
 

@@ -1,7 +1,7 @@
 BASE=https://jhc.sjtu.edu.cn/public/courses/CS2206/
 MATERIALS=Intro BoolExprSem Syntax DenotationalSemantics ListAndNat PracticalDenotations EquivAndRefine HoareLogic
-ASSIGNMENTS=0213 0216 0227 0302 0306 0313
-ASSIGNMENT_PDFS=0220 0316
+ASSIGNMENTS=0213 0216 0227 0302 0306 0313 0327
+ASSIGNMENT_PDFS=0220 0316 0320
 ZIPS=SetsClass compcert_lib
 
 %:
