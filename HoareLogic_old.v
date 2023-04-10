@@ -487,7 +487,7 @@ Proof.
 Qed.
 
 (** 然而，我们并不需要将其添加到霍尔逻辑的原始规则（primitive rules）集合中去。
-    因为，这一规则可以由双侧的Consequence规则导出。*)
+    因为，这一规则可以由双向的霍尔逻辑规则导出。*)
 
 Lemma hoare_conseq_pre:
   forall (P P' Q: assertion) (c: com),
@@ -504,30 +504,6 @@ Proof.
     intros; tauto.
 Qed.
 
-(** 上面证明中用到了_[Q |-- Q]_这一性质。之后的证明中还会用到许多关于断言推导的
-    命题逻辑性质。证明中可以使用_[assn_tauto]_指令用于证明。具体而言，
-    _[assn_tauto H1 H2 ... Hn]_表示在将_[H1]_等前提考虑在内的情况下使用命题逻辑
-    证明。*)
-
-Ltac assn_unfold :=
-  unfold derives, andp.
-
-Ltac assn_tauto_lift H :=
-  match H with
-  | ?H1 -> ?H2 =>
-      let F := assn_tauto_lift H2 in
-      constr:(fun X0 (X1: H1) => (F (fun s => (X0 s) (X1 s))): H2)
-  | _ =>
-      constr:(fun X: H => X)
-  end.
-
-Tactic Notation "assn_tauto" constr_list(Hs) :=
-  revert Hs;
-  assn_unfold;
-  match goal with
-  | |- ?P => let F := assn_tauto_lift P in refine (F _); intro s; tauto
-  end.
-
 Lemma hoare_conseq_post:
   forall (P Q Q': assertion) (c: com),
     provable {{ P }} c {{ Q' }} ->
@@ -537,8 +513,9 @@ Proof.
   intros.
   apply (hoare_conseq P P Q Q').
   + tauto.
-  + assn_tauto.
-  + assn_tauto H0.
+  + unfold derives.
+    intros; tauto.
+  + tauto.
 Qed.
 
 (** 类似的，可以用变量赋值规则（正向）与顺序执行规则导出下面规则。在Coq证明中，
@@ -578,16 +555,13 @@ Lemma hoare_seq_inv: forall P R c1 c2,
 Proof.
   intros.
   remember ( {{P}} c1; c2 {{R}} ) as ht eqn:EQ.
-  revert P R EQ; induction H; intros.
-  + discriminate EQ.
+  revert P R EQ.
+  induction H; intros; try discriminate EQ.
   + clear IHprovable1 IHprovable2.
     injection EQ as ? ? ? ?.
     subst P0 c0 c3 R0.
     exists Q.
     tauto.
-  + discriminate EQ.
-  + discriminate EQ.
-  + discriminate EQ.
   + injection EQ as ? ? ?.
     subst P0 c Q.
     rename Q' into R'.
@@ -650,53 +624,56 @@ Proof.
 Qed.
 
 (** 习题：*)
-
 Lemma hoare_if_inv: forall P Q e c1 c2,
   provable {{ P }} if (e) then { c1 } else { c2 } {{ Q }} ->
   provable {{ P && [[ e ]] }} c1 {{ Q }} /\
   provable {{ P && [[ ! e ]] }} c2 {{ Q }}.
-(* 请在此处填入你的证明，以_[Qed]_结束。 *)
 Proof.
   intros.
-  remember ( {{ P }} if (e) then { c1 } else { c2 } {{ Q }} ) as ht eqn:EQ.
-  revert P Q EQ; induction H; intros.
-  + discriminate EQ.
-  + discriminate EQ.
-  + clear IHprovable1 IHprovable2.
-    injection EQ as ? ? ? ? ?.
-    subst P0 e0 c0 c3 Q0.
+  remember {{P}} if e then { c1 } else { c2 } {{Q}}.
+  revert P Q Heqh.
+  induction H;
+  intros;
+  try discriminate;
+  injection Heqh;
+  intros.
+  - subst Q0 c3 c0 e0 P0.
     tauto.
-  + discriminate EQ.
-  + discriminate EQ.
-  + injection EQ as ? ? ?.
-    subst P0 c Q0.
+  - subst Q0 c P0.
     specialize (IHprovable _ _ eq_refl).
     destruct IHprovable.
     split.
-    - eapply hoare_conseq; [eauto | | eauto].
-      assn_tauto H0.
-    - eapply hoare_conseq; [eauto | | eauto].
-      assn_tauto H0.
-Qed.
+    + eapply hoare_conseq.
+      * apply H2.
+      * unfold derives, andp.
+        intros.
+        unfold derives in H0.
+        specialize (H0 s).
+        tauto.
+      * tauto.
+    + eapply hoare_conseq.
+      * apply H3.
+      * unfold derives, andp.
+        intros.
+        unfold derives in H0.
+        specialize (H0 s).
+        tauto.
+      * tauto.
+Qed. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
 
 (** 习题：*)
-
 Lemma hoare_if_seq1: forall P Q e c1 c2 c3,
   provable {{ P }} if (e) then { c1 } else { c2 }; c3 {{ Q }} ->
   provable {{ P }} if (e) then { c1; c3 } else { c2; c3 } {{ Q }}.
-(* 请在此处填入你的证明，以_[Qed]_结束。 *)
 Proof.
   intros.
   apply hoare_seq_inv in H.
-  destruct H as [M [? ?] ].
-  apply hoare_if.
-  + apply hoare_if_inv in H.
-    destruct H.
-    apply (hoare_seq _ M); tauto.
-  + apply hoare_if_inv in H.
-    destruct H.
-    apply (hoare_seq _ M); tauto.
-Qed.
+  destruct H as [R], H.
+  apply hoare_if_inv in H.
+  destruct H.
+  apply hoare_if; apply (hoare_seq _ R); tauto.
+Qed. (* 请删除这一行_[Admitted]_并填入你的证明，以_[Qed]_结束。 *)
+
 
 
 
